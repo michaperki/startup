@@ -1,8 +1,7 @@
 // ChallengeModal.js
 import React, { useState, useEffect } from "react";
-import { ref, onValue } from "firebase/database";
+import { ref, onValue, off } from "firebase/database";
 import { database } from "../firebase";
-import { off } from "firebase/database";
 
 const ChallengeModal = ({ onClose, onCreateChallenge, currentUser }) => {
   const [challengeName, setChallengeName] = useState("");

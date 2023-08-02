@@ -5,12 +5,12 @@ import { onAuthStateChanged } from "firebase/auth";
 import { serverTimestamp } from "firebase/firestore";
 import ChallengeModal from "./ChallengeModal";
 import { off, onValue, update, get } from "firebase/database";
-import { v4 as uuidv4 } from "uuid";
 
 const Dashboard = () => {
   const [currentUser, setCurrentUser] = useState(null);
   const [showModal, setShowModal] = useState(false);
   const [pendingChallenges, setPendingChallenges] = useState([]);
+  const [acceptedChallenges, setAcceptedChallenges] = useState([]);
 
   useEffect(() => {
     // Get the current user
@@ -28,24 +28,34 @@ const Dashboard = () => {
       // TODO: Implement the logic to fetch and update the user's streak
     }
     // TODO: Fetch the opponent's streak from the database and update setOpponentStreak()
-
-    // Fetch pending challenges where the current user is the opponent
+  
+    // Fetch pending and accepted challenges where the current user is either the opponent or the creator
     const challengesRef = ref(database, "challenges");
     onValue(challengesRef, (snapshot) => {
       const challenges = snapshot.val();
       const pendingChallengesList = [];
+      const acceptedChallengesList = []; // New state variable for accepted challenges
       for (let key in challenges) {
+        // get the challenge
         const challenge = challenges[key];
+        // store the challenge id for future use
+        challenge.id = key;
+        // check if the current user is either the opponent or the creator
         if (
-          challenge.opponent === currentUser.uid &&
-          challenge.status === "pending"
+          challenge.opponent === currentUser.uid ||
+          challenge.createdBy === currentUser.uid
         ) {
-          pendingChallengesList.push(challenge);
+          if (challenge.status === "pending") {
+            pendingChallengesList.push(challenge);
+          } else if (challenge.status === "accepted") {
+            acceptedChallengesList.push(challenge); // Add accepted challenges to the list
+          }
         }
       }
       setPendingChallenges(pendingChallengesList);
+      setAcceptedChallenges(acceptedChallengesList); // Update the state variable for accepted challenges
     });
-
+  
     // Clean up the listener on unmount
     return () => {
       off(challengesRef);
@@ -71,7 +81,6 @@ const Dashboard = () => {
   ) => {
     // create a new challenge in the database
     const newChallenge = {
-      id: uuidv4(),
       name: challengeName,
       duration: challengeDuration,
       createdAt: serverTimestamp(),
@@ -103,7 +112,16 @@ const Dashboard = () => {
         ...challenge,
         status: "accepted",
       };
-      set(challengeRef, acceptedChallenge);
+
+      // Update the challenge status to "accepted" in the database
+      update(ref(database, `challenges/${challengeId}`), acceptedChallenge);
+
+      // Update the opponent's challenges
+      const opponentId = challenge.createdBy;
+      set(ref(database, `users/${opponentId}/challenges/${challengeId}`), {
+        id: challengeId,
+        status: "accepted",
+      });
     });
 
     // Update the current user's challenges
@@ -145,7 +163,14 @@ const Dashboard = () => {
           currentUser={currentUser}
         />
       )}
-
+      <h3>Accepted Challenges</h3>
+      {acceptedChallenges.map((challenge) => (
+        <div key={challenge.id}>
+          <p>{challenge.duration}</p>
+          <p>{challenge.status}</p>
+          {/* You can add more information about the challenge here */}
+        </div>
+      ))}
       <h3>Pending Challenges</h3>
       {pendingChallenges.map((challenge) => (
         <div key={challenge.id}>
