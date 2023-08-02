@@ -1,5 +1,5 @@
-// Dashboard.js
 import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import app, { auth, database, ref, set, push } from "../firebase";
 import { onAuthStateChanged } from "firebase/auth";
 import { serverTimestamp } from "firebase/firestore";
@@ -28,34 +28,31 @@ const Dashboard = () => {
       // TODO: Implement the logic to fetch and update the user's streak
     }
     // TODO: Fetch the opponent's streak from the database and update setOpponentStreak()
-  
-    // Fetch pending and accepted challenges where the current user is either the opponent or the creator
+
+    // Fetch pending and accepted challenges where the current user is the opponent
     const challengesRef = ref(database, "challenges");
     onValue(challengesRef, (snapshot) => {
       const challenges = snapshot.val();
       const pendingChallengesList = [];
-      const acceptedChallengesList = []; // New state variable for accepted challenges
+      const acceptedChallengesList = [];
       for (let key in challenges) {
         // get the challenge
         const challenge = challenges[key];
         // store the challenge id for future use
         challenge.id = key;
-        // check if the current user is either the opponent or the creator
-        if (
-          challenge.opponent === currentUser.uid ||
-          challenge.createdBy === currentUser.uid
-        ) {
+        // check if the current user is the opponent
+        if (challenge.opponent === currentUser.uid) {
           if (challenge.status === "pending") {
             pendingChallengesList.push(challenge);
           } else if (challenge.status === "accepted") {
-            acceptedChallengesList.push(challenge); // Add accepted challenges to the list
+            acceptedChallengesList.push(challenge);
           }
         }
       }
       setPendingChallenges(pendingChallengesList);
-      setAcceptedChallenges(acceptedChallengesList); // Update the state variable for accepted challenges
+      setAcceptedChallenges(acceptedChallengesList);
     });
-  
+
     // Clean up the listener on unmount
     return () => {
       off(challengesRef);
@@ -150,6 +147,13 @@ const Dashboard = () => {
       status: "rejected",
     });
   };
+
+  const navigate = useNavigate();
+  const handleViewFlossWars = (challengeId) => {
+    // Navigate to the FlossWarsPage for the accepted challenge
+    navigate(`/floss-wars/${challengeId}`);
+  };
+
   return (
     <div>
       <h2>Welcome, {currentUser ? currentUser.email : "Guest"}</h2>
@@ -163,14 +167,19 @@ const Dashboard = () => {
           currentUser={currentUser}
         />
       )}
+
       <h3>Accepted Challenges</h3>
       {acceptedChallenges.map((challenge) => (
         <div key={challenge.id}>
           <p>{challenge.duration}</p>
           <p>{challenge.status}</p>
-          {/* You can add more information about the challenge here */}
+          {/* View Floss Wars button */}
+          <button onClick={() => handleViewFlossWars(challenge.id)}>
+            Floss Wars
+          </button>
         </div>
       ))}
+
       <h3>Pending Challenges</h3>
       {pendingChallenges.map((challenge) => (
         <div key={challenge.id}>

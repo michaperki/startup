@@ -1,9 +1,9 @@
-// App.js
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
 import SignupPage from './pages/SignupPage';
 import LoginPage from './pages/LoginPage';
 import HomePage from './pages/HomePage';
+import FlossWarsPage from './pages/FlossWarsPage';
 
 const App = () => {
   return (
@@ -21,12 +21,13 @@ const App = () => {
         </nav>
 
         <Routes>
-          <Route path="/signup" element={<SignupPage/>} />
-          <Route path="/login" element={<LoginPage/>} />
+          <Route path="/signup" element={<SignupPage />} />
+          <Route path="/login" element={<LoginPage />} />
+          {/* Add the route for FlossWarsPage by challenge ID */}
+          <Route path="/floss-wars/:challengeId" element={<FlossWarsPage />} /> 
 
           {/* If none of the above matches, redirect to home */}
-          <Route path="*" element={<HomePage/>} />
-
+          <Route path="*" element={<HomePage />} />
         </Routes>
       </div>
     </Router>
