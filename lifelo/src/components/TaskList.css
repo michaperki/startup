@@ -1,0 +1,43 @@
+.TaskList {
+    margin: 0 0 1rem 0;
+    padding: 0;
+    list-style: none;
+  }
+  
+  .TaskList-title {
+    margin: 0 0 0.5rem 0;
+    font-size: 1.5rem;
+  }
+  
+  .TaskList-empty {
+    margin: 0;
+    font-style: italic;
+    color: #ccc;
+  }
+  
+  .TaskList-items {
+    margin: 0;
+    padding: 0;
+  }
+  
+  .TaskList-items .TaskItem {
+    margin: 0 0 0.5rem 0;
+    padding: 0.5rem;
+    border: 1px solid #ddd;
+    border-radius: 3px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    opacity: 1; /* Set initial opacity to 1 for the fade-in effect */
+    transition: opacity 0.3s ease; /* Add a smooth transition effect for opacity */
+  }
+  
+  .TaskList-items .TaskItem--completed {
+    border-color: #ccc;
+  }
+  
+  .TaskList-items .TaskItem--completed .TaskItem-title {
+    text-decoration: line-through;
+    color: #ccc;
+    opacity: 0.6; /* Reduce opacity for completed tasks */
+  }

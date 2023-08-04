@@ -1,0 +1,26 @@
+.Lifelo {
+  font-family: "Press Start 2P", cursive;
+  font-size: 2rem;
+  color: #fff;
+  text-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+  text-align: center;
+  margin: 0 0 1rem 0;
+  padding: 0.5rem;
+  border-radius: 3px;
+  background-color: #282c34;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.Lifelo-red {
+  color: #ff4136;
+}
+
+.Lifelo-green {
+  color: #2ecc40;
+}
+
+.Lifelo .Lifelo-number {
+  font-size: 2.5rem;
+}

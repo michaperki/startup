@@ -1,0 +1,64 @@
+.Task {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    
+    width: 100%;
+    min-height: 100px;
+
+    background-color: #fff;
+    border: 1px solid #ddd;
+    border-radius: 3px;
+    padding: 10px;
+    margin-bottom: 10px;
+    transition: transform 0.2s ease;
+    opacity: 1;
+    transition: opacity 1s; /* Adjust the duration to match your desired fade-out effect */
+   
+    &:hover {
+      transform: scale(1.05);
+    }
+  }
+  
+  .Task.completed {
+    background-color: #2ecc40;
+    color: #fff;
+    border-color: #2ecc40;
+    box-shadow: none;
+    opacity: 0;
+  }
+  
+  .Task-title {
+    font-size: 18px;
+    font-weight: bold;
+    margin-bottom: 5px;
+  }
+  
+  .Task-points {
+    font-size: 28px;
+    color: #282c34;
+  }
+  
+  .Task-actions {
+    margin-top: 10px;
+  }
+  
+  .Task-actions button {
+    background-color: #282c34;
+    color: #fff;
+    padding: 5px 10px;
+    border: none;
+    border-radius: 3px;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+  
+    &:not(:last-child) {
+      margin-right: 5px;
+    }
+  
+    &:hover {
+      background-color: #444;
+    }
+  }
+  
