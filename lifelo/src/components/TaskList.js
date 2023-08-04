@@ -16,7 +16,13 @@ class TaskList extends Component {
       currentTaskIndex: prevState.currentTaskIndex + 1,
     }));
     this.props.completeTask(task);
-    console.log("TaskList.js: completeTask: task:", task)
+  };
+
+  skipTask = (task) => {
+    this.setState((prevState) => ({
+      currentTaskIndex: prevState.currentTaskIndex + 1,
+    }));
+    this.props.skipTask(task);
   };
 
   render() {
@@ -27,7 +33,7 @@ class TaskList extends Component {
     return (
       <div className="TaskList">
         {task ? (
-          <Task task={task} completeTask={this.completeTask} />
+          <Task task={task} completeTask={this.completeTask} skipTask={this.skipTask} />
         ) : (
           <div>No more tasks</div>
         )}
@@ -37,3 +43,4 @@ class TaskList extends Component {
 }
 
 export default TaskList;
+

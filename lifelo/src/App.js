@@ -46,6 +46,16 @@ class App extends Component {
     }
   };
 
+  skipTask = (task) => {
+    if (task.completed) {
+      alert("You have already completed this task");
+    } else {
+      this.setState({
+        lifelo: this.state.lifelo - task.points,
+      });
+    }
+  };
+
   resetTasks = () => {
     tasks.forEach((task) => {
       task.completed = false;
@@ -60,7 +70,7 @@ class App extends Component {
       <div className="App">
         <Navbar lifelo={this.state.lifelo} />
         <Lifelo lifelo={this.state.lifelo} addLifelo={this.addLifelo} />
-        <TaskList tasks={this.state.tasks} completeTask={this.completeTask} />
+        <TaskList tasks={this.state.tasks} completeTask={this.completeTask} skipTask={this.skipTask} />
         <button onClick={this.resetTasks}>Reset Tasks</button>
       </div>
     );

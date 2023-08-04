@@ -9,7 +9,7 @@ class Task extends Component {
       completed: false,
     };
   }
-  
+
   componentDidUpdate(prevProps) {
     // Check if the task prop has changed to a new task
     if (prevProps.task !== this.props.task) {
@@ -24,20 +24,27 @@ class Task extends Component {
     }, 1000); // Adjust the time to match your CSS transition duration
   };
 
+  handleSkipTask = (event) => {
+    event.stopPropagation();
+    this.props.skipTask(this.props.task);
+  };
+
   render() {
     const { task } = this.props;
     const { completed } = this.state;
 
     return (
-      <div
-        className={`Task ${completed ? "completed" : ""}`}
-        style={{ opacity: completed ? 0 : 1 }}
-        onClick={this.handleCompleteTask}
-      >
-        <div className="Task-title">{task.title}</div>
-        <div className="Task-points">{task.points}</div>
-        <button onClick={this.handleSkipTask}>Skip this task</button>
-      </div>
+      <>
+        <div
+          className={`Task ${completed ? "completed" : ""}`}
+          style={{ opacity: completed ? 0 : 1 }}
+          onClick={this.handleCompleteTask}
+        >
+          <div className="Task-title">{task.title}</div>
+          <div className="Task-points">{task.points}</div>
+          <button onClick={this.handleSkipTask}>Skip this task</button>
+        </div>
+      </>
     );
   }
 }
