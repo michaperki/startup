@@ -7,46 +7,28 @@ import RoutineSelector from "../components/RoutineSelector";
 
 const Overview = ({
   score,
-  prevScore,
-  updateScore,
   tasks,
+  taskIndex,
   onTaskComplete,
   onTaskSkip,
-  taskIndex,
-  taskLists,
 }) => {
-  if (!tasks) {
-    return null; // or return a loading spinner
-  }
   return (
-    <View style={styles.scoreContainer}>
-      <Score score={score} prevScore={prevScore} />
-
-      <View style={styles.taskContainer}>
-        {tasks.length > 0 ? (
-          <TaskList
-            tasks={tasks}
-            onTaskComplete={onTaskComplete}
-            onTaskSkip={onTaskSkip}
-            taskIndex={taskIndex}
-          />
-        ) : (
-          <Text>Loading...</Text>
-        )}
-      </View>
+    <View style={styles.container}>
+      <Score score={score} />
+      <TaskList
+        tasks={tasks}
+        taskIndex={taskIndex}
+        onTaskComplete={onTaskComplete}
+        onTaskSkip={onTaskSkip}
+      />
     </View>
   );
 };
 
 const styles = StyleSheet.create({
-  scoreContainer: {
-    marginTop: 50,
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  taskContainer: {
-    marginTop: -250,
-    justifyContent: "center",
+  container: {
+    flex: 1,
+    backgroundColor: "#fff",
     alignItems: "center",
   },
 });

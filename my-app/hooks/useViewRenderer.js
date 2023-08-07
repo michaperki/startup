@@ -1,4 +1,3 @@
-
 import React from "react";
 import { Text } from "react-native";
 import Overview from "../pages/Overview";
@@ -40,14 +39,21 @@ const useViewRenderer = (
         return (
           <Overview
             {...sharedProps}
-            taskLists={taskLists}
             tasks={tasks}
             taskIndex={taskIndex}
-            onSelectRoutine={selectRoutine}
           />
         );
       case VIEW_TYPES.TODAY:
-        return <Daily {...sharedProps} task={tasks[taskIndex]} />;
+        return (
+          <Daily
+            {...sharedProps}
+            task={tasks[taskIndex]}
+            taskLists={taskLists}
+            onSelect={selectRoutine}
+            tasks={tasks}
+
+          />
+        );
       default:
         return null;
     }

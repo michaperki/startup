@@ -1,33 +1,42 @@
 // Task.js
 import React from "react";
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import TaskButton from "./TaskButton";
 
-const Task = ({ task, onComplete, onSkip }) => (
-  <View style={styles.task}>
-    <Text style={styles.taskText}>{task.description}</Text>
-    <TouchableOpacity onPress={onComplete}>
-      <Text style={styles.button}>Complete</Text>
-    </TouchableOpacity>
-    <TouchableOpacity onPress={onSkip}>
-      <Text style={styles.button}>Skip</Text>
-    </TouchableOpacity>
-  </View>
-);
+const Task = ({ task, onTaskComplete, onTaskSkip }) => {
+  return (
+    <View style={styles.container}>
+      <Text style={styles.title}>{task.title}</Text>
+      <Text style={styles.description}>{task.description}</Text>
+      <View style={styles.buttonContainer}>
+        <TaskButton title="Skip" onPress={onTaskSkip} />
+        <TaskButton title="Complete" onPress={onTaskComplete} />
+      </View>
+    </View>
+  );
+}
 
 const styles = StyleSheet.create({
-  task: {
-    flex: 1,
+  container: {
+    backgroundColor: "#fff",
+    padding: 10,
     justifyContent: "center",
     alignItems: "center",
   },
-  taskText: {
-    fontSize: 20,
+  title: {
+    fontSize: 30,
+    textAlign: "center",
   },
-  button: {
+  description: {
     fontSize: 20,
-    color: "blue",
-    margin: 10,
+    textAlign: "center",
+  },
+  buttonContainer: {
+    flexDirection: "row",
+    justifyContent: "space-around",
+    width: "100%",
   },
 });
 
 export default Task;
+

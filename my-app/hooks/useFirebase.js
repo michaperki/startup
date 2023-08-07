@@ -1,12 +1,7 @@
 // useFirebase.js
 import { useEffect, useState } from "react";
-import {
-  fetchValueFromRef,
-  fetchValueFromRefOnce,
-  updateValueAtRef,
-  getScoreRef,
-  getTaskListsRef,
-} from "../services/firebaseService";
+import { userService } from "../services/userService";
+import { taskService } from "../services/taskService";
 
 export function useFirebaseScore(uid) {
   const [score, setScore] = useState(0);
@@ -16,8 +11,7 @@ export function useFirebaseScore(uid) {
     const fetchScore = async () => {
       try {
         console.log("Fetching score...");
-        console.log("Score ref:", getScoreRef(uid));
-        const score = await fetchValueFromRefOnce(getScoreRef(uid));
+        const score = await userService.getLifelo(uid);
         console.log("Fetched score:", score);
         setScore(score);
       } catch (err) {
@@ -31,7 +25,7 @@ export function useFirebaseScore(uid) {
   const updateScore = (incrementValue) => {
     setPrevScore(score);
     setScore(score + incrementValue);
-    updateValueAtRef(getScoreRef(uid), score + incrementValue);
+    userService.updateLifelo(uid, score + incrementValue);
   };
 
   return { score, prevScore, updateScore };
@@ -50,8 +44,7 @@ export function useFirebaseTaskLists() {
       setError(null);
 
       try {
-        const ref = getTaskListsRef();
-        const data = await fetchValueFromRefOnce(ref);
+        const data = await taskService.fetchTaskLists();
 
         console.log("Fetched tasks:", data);
         setTaskLists(data);

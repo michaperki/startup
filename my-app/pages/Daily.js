@@ -1,63 +1,57 @@
-import React, { Component } from "react";
+import React from "react";
 import { StyleSheet, Text, View } from "react-native";
 import Score from "../components/Score";
-import TaskList from "../components/TaskList";
-import RoutineSelector from "../components/RoutineSelector";
 import DailyOutcome from "../components/DailyOutcome";
+import RoutineSelector from "../components/RoutineSelector";
 
-class Daily extends Component {
-  // function to compute the high score and low score
-  // from the tasks array and the score
-  computeHighAndLowScore(tasks, score) {
-    // if there are no tasks, return 0 for both
-    if (!tasks || tasks.length === 0) {
-      return { highScore: 0, lowScore: 0 };
-    }
-
-    // otherwise, compute the high and low scores
-    // from the tasks array and the score
-    const highScoreDiff = tasks.reduce((acc, task) => {
-      return acc + task.points.complete;
-    }, 0);
-
-    const lowScoreDiff = tasks.reduce((acc, task) => {
-      return acc + task.points.skip;
-    }, 0);
-
-    const highScore = score + highScoreDiff;
-    const lowScore = score + lowScoreDiff;
-
-    return { highScore, lowScore };
+const computeHighAndLowScore = (tasks, score) => {
+  if (!tasks || tasks.length === 0) {
+    return { highScore: 0, lowScore: 0 };
   }
 
-  render() {
-    const { score, tasks, taskLists, onSelect, routine } = this.props;
+  const highScoreDiff = tasks.reduce(
+    (acc, task) => acc + task.points.complete,
+    0
+  );
+  const lowScoreDiff = tasks.reduce((acc, task) => acc + task.points.skip, 0);
 
-    // compute the high and low scores
-    const { highScore, lowScore } = this.computeHighAndLowScore(tasks, score);
+  const highScore = score + highScoreDiff;
+  const lowScore = score + lowScoreDiff;
 
-    return (
-      <View style={styles.container}>
-        <Text style={styles.header}>Daily View</Text>
-        <Score score={score} />
-        <View style={styles.bestAndWorst}>
-          <DailyOutcome
-            score={lowScore}
-            caption="worst"
-            backgroundColor="#ffe6e6"
-          />
-          <DailyOutcome
-            score={highScore}
-            caption="best"
-            backgroundColor="#e6ffe6"
-          />
-        </View>
-        <RoutineSelector taskLists={taskLists} onSelect={onSelect} />
-        <Text style={styles.routineHeader}>Current Routine: {routine}</Text>
+  return { highScore, lowScore };
+};
+
+const Daily = ({ score, tasks, taskLists, onSelect, routine }) => {
+  const { highScore, lowScore } = computeHighAndLowScore(tasks, score);
+
+  return (
+    <View style={styles.container}>
+      <Text style={styles.header}>Daily View</Text>
+      <Score score={score} />
+      <View style={styles.bestAndWorst}>
+        <DailyOutcome
+          score={lowScore}
+          caption="worst"
+          backgroundColor="#ffe6e6"
+        />
+        <DailyOutcome
+          score={highScore}
+          caption="best"
+          backgroundColor="#e6ffe6"
+        />
       </View>
-    );
-  }
-}
+      <RoutineSelector taskLists={taskLists} onSelect={onSelect} />
+      <Text style={styles.routineHeader}>Current Routine:</Text>
+      <View style={styles.routineContainer}>
+        {tasks.map((task, index) => (
+          <Text key={index} style={styles.task}>
+            Task {index + 1}: {task.description}
+          </Text>
+        ))}
+      </View>
+    </View>
+  );
+};
 
 const styles = StyleSheet.create({
   container: {
@@ -75,6 +69,9 @@ const styles = StyleSheet.create({
   bestAndWorst: {
     flexDirection: "row",
     justifyContent: "space-around",
+  },
+  routineContainer: {
+    padding: 20,
   },
 });
 

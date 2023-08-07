@@ -16,56 +16,42 @@ const Lifelo = () => {
 
   const { user } = useUser();
   const { score, updateScore } = useFirebaseScore(user.uid);
-  console.log(`score:`, score); // This will log the score object.
   const { taskLists, tasks, selectRoutine, loading, error } =
     useFirebaseTaskLists();
 
   const { fetchPerformance, savePerformance } = useTaskPerformance(user.uid);
+  const validateUpdate = useCallback((task, pointsUpdateKey) => {
+    if (!task) throw new Error("Current task is invalid or undefined.");
+    if (!["completed", "skipped"].includes(pointsUpdateKey))
+      throw new Error("Invalid pointsUpdateKey:", pointsUpdateKey);
+  }, []);
+
+  const getUpdatedPerformance = useCallback(
+    async (id) => {
+      const currentPerformance = (await fetchPerformance(id)) || {
+        completed: 0,
+        skipped: 0,
+      };
+      currentPerformance.completed = currentPerformance.completed || 0;
+      currentPerformance.skipped = currentPerformance.skipped || 0;
+      return currentPerformance;
+    },
+    [fetchPerformance]
+  );
 
   const handlePerformanceUpdate = useCallback(
     async (pointsUpdateKey) => {
       const task = tasks[taskIndex];
-      if (!task) {
-        console.error("Current task is invalid or undefined.");
-        return;
-      }
 
-      if (!["completed", "skipped"].includes(pointsUpdateKey)) {
-        console.error("Invalid pointsUpdateKey:", pointsUpdateKey);
-        return;
-      }
+      validateUpdate(task, pointsUpdateKey);
 
       const { id, points } = task;
 
       try {
-        const currentPerformance = (await fetchPerformance(id)) || {
-          completed: 0,
-          skipped: 0,
-        };
-
-        // if either completed or skipped is undefined, set it to 0
-        if (currentPerformance.completed === undefined) {
-          currentPerformance.completed = 0;
-        }
-        if (currentPerformance.skipped === undefined) {
-          currentPerformance.skipped = 0;
-        }
-
-        console.log(`currentPerformance for task ${id}:`, currentPerformance); // This will show the current performance for the task.
-        console.log(`pointsUpdateKey:`, pointsUpdateKey); // This will log the pointsUpdateKey.
-        console.log(
-          `Value to update:`,
-          currentPerformance[pointsUpdateKey] + 1
-        ); // This will log the value you're trying to save.
-
+        const currentPerformance = await getUpdatedPerformance(id);
         const updatedPoints = currentPerformance[pointsUpdateKey] + 1;
 
-        console.log(`updatedPoints:`, updatedPoints); // This will log the updated points.
-        await savePerformance(
-          id,
-          pointsUpdateKey,
-          currentPerformance[pointsUpdateKey] + 1
-        );
+        await savePerformance(id, pointsUpdateKey, updatedPoints);
 
         const updatedScore = calculateScore(
           currentPerformance.completed,
@@ -82,7 +68,6 @@ const Lifelo = () => {
     },
     [tasks, taskIndex, fetchPerformance, user.uid]
   );
-
   const renderContent = useViewRenderer(
     view,
     loading,
