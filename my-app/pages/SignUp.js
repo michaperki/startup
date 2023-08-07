@@ -1,33 +1,36 @@
 import React, { useState } from "react";
-import { logIn, getTutorialStatus } from "../services/firebaseService"; // ensure you've imported getTutorialStatus
-import { Text, View, TextInput, Button } from "react-native";
+import { Text, View, TextInput, Button, themeheet } from "react-native";
 import theme from "../theme";
+import { signUp, createUserInDB, getTutorialStatus } from "../services/firebaseService";
+import { useUser } from "../contexts/UserContext";
 
-const LogIn = (props) => {
+const SignUp = (props) => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
+  const { setUser } = useUser(); // Note the change here
 
-  const handleLogIn = () => {
-    logIn(email, password)
+  const handleSignUp = () => {
+    signUp(email, password)
       .then((userCredential) => {
-        const user = userCredential.user;
-        console.log("Logged-in user:", user); // Debug the returned user
-        onLoginSuccess(user);
+        const uid = userCredential.user.uid;
+        console.log("Signed-up user:", userCredential.user); // Debug the returned user
+        return createUserInDB(uid).then(() => uid); // Return the uid after creating user in DB
+      })
+      .then((uid) => {
+        console.log("Created user in DB with uid:", uid); 
+        onSignUpSuccess({ uid: uid }); // Note the change here
       })
       .catch((error) => {
         setErrorMessage(error.message);
       });
   };
 
-  const navigateToSignUp = () => {
-    props.navigation.navigate("Sign Up");
-  };
-
-  const onLoginSuccess = (user) => {
+  const onSignUpSuccess = (user) => {
+    setUser(user); // Set the user in the UserContext
     getTutorialStatus(user.uid)
-      .then((hasCompletedTutorial) => {
-        if (hasCompletedTutorial) {
+      .then((tutorialData) => {
+        if (tutorialData.hasCompletedTutorial) { // Adjusted this line
           props.navigation.navigate("Lifelo");
         } else {
           props.navigation.navigate("Tutorial", { user: user });
@@ -38,9 +41,13 @@ const LogIn = (props) => {
       });
   };
 
+  const navigateToLogin = () => {
+    props.navigation.navigate("Log In");
+  };
+
   return (
     <View style={theme.container}>
-      <Text style={theme.header}>Log In</Text>
+      <Text style={theme.header}>Sign Up</Text>
       <Text style={theme.errorMessage}>{errorMessage}</Text>
 
       <InputLabel value={email} onChange={setEmail} label="Email" />
@@ -51,10 +58,10 @@ const LogIn = (props) => {
         secureTextEntry
       />
 
-      <Button title="Log In" onPress={handleLogIn} />
+      <Button title="Sign Up" onPress={handleSignUp} />
       <Button
-        title="Don't have an account? Sign Up"
-        onPress={navigateToSignUp}
+        title="Already have an account? Login"
+        onPress={navigateToLogin}
       />
     </View>
   );
@@ -73,4 +80,4 @@ const InputLabel = ({ value, onChange, label, ...props }) => (
   </>
 );
 
-export default LogIn;
+export default SignUp;

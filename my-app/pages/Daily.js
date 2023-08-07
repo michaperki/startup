@@ -1,9 +1,9 @@
 import React, { Component } from "react";
 import { StyleSheet, Text, View } from "react-native";
-import Score from "./Score";
-import TaskList from "./TaskList";
-import RoutineSelector from "./RoutineSelector";
-import DailyOutcome from "./DailyOutcome";
+import Score from "../components/Score";
+import TaskList from "../components/TaskList";
+import RoutineSelector from "../components/RoutineSelector";
+import DailyOutcome from "../components/DailyOutcome";
 
 class Daily extends Component {
   // function to compute the high score and low score

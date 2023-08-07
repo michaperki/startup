@@ -1,34 +1,36 @@
 import React, { useState } from "react";
-import { Text, View, TextInput, Button, themeheet } from "react-native";
+import { logIn, getTutorialStatus } from "../services/firebaseService"; // ensure you've imported getTutorialStatus
+import { Text, View, TextInput, Button } from "react-native";
 import theme from "../theme";
-import { signUp, createUserInDB, getTutorialStatus } from "../services/firebaseService";
+import { useUser } from "../contexts/UserContext";
 
-
-const SignUp = (props) => {
+const LogIn = (props) => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
+  const { setUser } = useUser();
 
-  const handleSignUp = () => {
-    signUp(email, password)
+  const handleLogIn = () => {
+    logIn(email, password)
       .then((userCredential) => {
-        const uid = userCredential.user.uid;
-        console.log("Signed-up user:", userCredential.user); // Debug the returned user
-        return createUserInDB(uid).then(() => uid); // Return the uid after creating user in DB
-      })
-      .then((uid) => {
-        console.log("Created user in DB with uid:", uid); 
-        onSignUpSuccess({ uid: uid }); // Note the change here
+        const user = userCredential.user;
+        console.log("Logged-in user:", user); // Debug the returned user
+        onLoginSuccess(user);
       })
       .catch((error) => {
         setErrorMessage(error.message);
       });
   };
 
-  const onSignUpSuccess = (user) => {
+  const navigateToSignUp = () => {
+    props.navigation.navigate("Sign Up");
+  };
+
+  const onLoginSuccess = (user) => {
+    setUser(user); // Set the user in the UserContext
     getTutorialStatus(user.uid)
-      .then((tutorialData) => {
-        if (tutorialData.hasCompletedTutorial) { // Adjusted this line
+      .then((hasCompletedTutorial) => {
+        if (hasCompletedTutorial) {
           props.navigation.navigate("Lifelo");
         } else {
           props.navigation.navigate("Tutorial", { user: user });
@@ -39,13 +41,9 @@ const SignUp = (props) => {
       });
   };
 
-  const navigateToLogin = () => {
-    props.navigation.navigate("Log In");
-  };
-
   return (
     <View style={theme.container}>
-      <Text style={theme.header}>Sign Up</Text>
+      <Text style={theme.header}>Log In</Text>
       <Text style={theme.errorMessage}>{errorMessage}</Text>
 
       <InputLabel value={email} onChange={setEmail} label="Email" />
@@ -56,10 +54,10 @@ const SignUp = (props) => {
         secureTextEntry
       />
 
-      <Button title="Sign Up" onPress={handleSignUp} />
+      <Button title="Log In" onPress={handleLogIn} />
       <Button
-        title="Already have an account? Login"
-        onPress={navigateToLogin}
+        title="Don't have an account? Sign Up"
+        onPress={navigateToSignUp}
       />
     </View>
   );
@@ -78,4 +76,4 @@ const InputLabel = ({ value, onChange, label, ...props }) => (
   </>
 );
 
-export default SignUp;
+export default LogIn;

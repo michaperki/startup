@@ -30,14 +30,6 @@ class Home extends Component {
           title="Sign Up"
           onPress={() => this.props.navigation.navigate("Sign Up")}
         />
-        <Button
-          title="Lifelo"
-          onPress={() => this.props.navigation.navigate("Lifelo")}
-        />
-        <Button
-          title="Scratch"
-          onPress={() => this.props.navigation.navigate("Scratch")}
-        />
       </View>
     );
   }

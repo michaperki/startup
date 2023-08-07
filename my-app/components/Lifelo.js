@@ -1,83 +1,109 @@
-import React, { useState } from "react";
-import { StyleSheet, View } from "react-native";
-import Score from "./Score";
-import NavMenu from "./NavMenu";
-import TaskList from "./TaskList";
-import RoutineSelector from "./RoutineSelector";
-import Overview from "./Overview";
-import Daily from "./Daily";
+import React, { useState, useCallback } from "react";
+import { Text, View, StyleSheet } from "react-native";
+
 import { useFirebaseScore, useFirebaseTaskLists } from "../hooks/useFirebase";
+import { useUser } from "../contexts/UserContext";
+
+import NavMenu from "./NavMenu";
+import useTaskPerformance from "../hooks/useTaskPerformance";
+import useViewRenderer, { VIEW_TYPES } from "../hooks/useViewRenderer";
+
+import { calculateScore } from "../utils/scoring";
 
 const Lifelo = () => {
-  const [view, setView] = useState("overview");
-  const [routine, setRoutine] = useState("morning_routine");
+  const [view, setView] = useState(VIEW_TYPES.OVERVIEW);
   const [taskIndex, setTaskIndex] = useState(0);
-  
-  const { score, prevScore, updateScore } = useFirebaseScore();
-  const { taskLists, tasks, selectRoutine } = useFirebaseTaskLists();
-  
-  const handleNavMenuSelect = (view) => {
-    setView(view);
-  };
 
-  const handleTaskComplete = ({ points }) => {
-    updateScore(points.complete);
-    moveToNextTask();
-  };
+  const { user } = useUser();
+  const { score, updateScore } = useFirebaseScore(user.uid);
+  console.log(`score:`, score); // This will log the score object.
+  const { taskLists, tasks, selectRoutine, loading, error } =
+    useFirebaseTaskLists();
 
-  const handleTaskSkip = ({ points }) => {
-    updateScore(points.skip);
-    moveToNextTask();
-  };
+  const { fetchPerformance, savePerformance } = useTaskPerformance(user.uid);
 
-  const handleRoutineChange = (routine) => {
-    selectRoutine(routine);
-    setRoutine(routine);
-  };
+  const handlePerformanceUpdate = useCallback(
+    async (pointsUpdateKey) => {
+      const task = tasks[taskIndex];
+      if (!task) {
+        console.error("Current task is invalid or undefined.");
+        return;
+      }
 
-  const moveToNextTask = () => {
-    setTaskIndex((prevTaskIndex) => (prevTaskIndex + 1) % tasks.length);
-  };
+      if (!["completed", "skipped"].includes(pointsUpdateKey)) {
+        console.error("Invalid pointsUpdateKey:", pointsUpdateKey);
+        return;
+      }
 
-  const renderView = () => {
-    switch (view) {
-      case "overview":
-        return (
-          <Overview
-            score={score}
-            prevScore={prevScore}
-            tasks={tasks}
-            updateScore={updateScore}
-            onTaskComplete={handleTaskComplete}
-            onTaskSkip={handleTaskSkip}
-            taskIndex={taskIndex}
-            taskLists={taskLists}
-          />
+      const { id, points } = task;
+
+      try {
+        const currentPerformance = (await fetchPerformance(id)) || {
+          completed: 0,
+          skipped: 0,
+        };
+
+        // if either completed or skipped is undefined, set it to 0
+        if (currentPerformance.completed === undefined) {
+          currentPerformance.completed = 0;
+        }
+        if (currentPerformance.skipped === undefined) {
+          currentPerformance.skipped = 0;
+        }
+
+        console.log(`currentPerformance for task ${id}:`, currentPerformance); // This will show the current performance for the task.
+        console.log(`pointsUpdateKey:`, pointsUpdateKey); // This will log the pointsUpdateKey.
+        console.log(
+          `Value to update:`,
+          currentPerformance[pointsUpdateKey] + 1
+        ); // This will log the value you're trying to save.
+
+        const updatedPoints = currentPerformance[pointsUpdateKey] + 1;
+
+        console.log(`updatedPoints:`, updatedPoints); // This will log the updated points.
+        await savePerformance(
+          id,
+          pointsUpdateKey,
+          currentPerformance[pointsUpdateKey] + 1
         );
-      case "today":
-        return (
-          <Daily
-            routine={routine}
-            score={score}
-            tasks={tasks}
-            taskLists={taskLists}
-            onSelect={handleRoutineChange}
-          />
+
+        const updatedScore = calculateScore(
+          currentPerformance.completed,
+          currentPerformance.skipped
         );
-      default:
-        return null;
-    }
-  };
+
+        updateScore(updatedScore);
+        setTaskIndex((prevIndex) =>
+          prevIndex < tasks.length - 1 ? prevIndex + 1 : 0
+        );
+      } catch (err) {
+        console.error("Error updating the task performance:", err);
+      }
+    },
+    [tasks, taskIndex, fetchPerformance, user.uid]
+  );
+
+  const renderContent = useViewRenderer(
+    view,
+    loading,
+    error,
+    score,
+    taskLists,
+    tasks,
+    taskIndex,
+    handlePerformanceUpdate,
+    selectRoutine
+  );
 
   return (
     <View style={styles.container}>
       <View style={styles.menuContainer}>
-        <NavMenu onSelect={handleNavMenuSelect} />
+        <NavMenu onSelect={setView} />
       </View>
-      {renderView()}
+      {renderContent()}
     </View>
   );
-}
+};
 
 const styles = StyleSheet.create({
   container: {
@@ -86,17 +112,6 @@ const styles = StyleSheet.create({
   },
   menuContainer: {
     marginTop: 100,
-  },
-  scoreContainer: {
-    marginTop: 50,
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  taskListContainer: {
-    flex: 1,
-    marginTop: -350,
-    justifyContent: "center",
-    alignItems: "center",
   },
 });
 

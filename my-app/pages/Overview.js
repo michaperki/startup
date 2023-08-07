@@ -1,9 +1,9 @@
 // Overview.js
 import React from "react";
 import { StyleSheet, Text, View } from "react-native";
-import Score from "./Score";
-import TaskList from "./TaskList";
-import RoutineSelector from "./RoutineSelector";
+import Score from "../components/Score";
+import TaskList from "../components/TaskList";
+import RoutineSelector from "../components/RoutineSelector";
 
 const Overview = ({
   score,

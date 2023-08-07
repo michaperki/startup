@@ -1,0 +1,72 @@
+{
+  "task_lists": {
+    "morning_routine": {
+      "tasks": [
+        {
+          "id": "1",
+          "description": "Brush your teeth",
+          "points": {
+            "complete": 1,
+            "skip": -1
+          }
+        },
+        {
+          "id": "2",
+          "description": "Eat breakfast",
+          "points": {
+            "complete": 1,
+            "skip": -1
+          }
+        },
+        {
+          "id": "3",
+          "description": "Do 30 minutes of exercise",
+          "points": {
+            "complete": 3,
+            "skip": -2
+          }
+        }
+      ]
+    },
+    "night_routine": {
+      "tasks": [
+        {
+          "id": "4",
+          "description": "Prepare clothes for next day",
+          "points": {
+            "complete": 1,
+            "skip": -1
+          }
+        },
+        {
+          "id": "5",
+          "description": "Read for 30 minutes",
+          "points": {
+            "complete": 2,
+            "skip": -1
+          }
+        }
+      ]
+    },
+    "weekend_routine": {
+      "tasks": [
+        {
+          "id": "6",
+          "description": "Complete a hobby project",
+          "points": {
+            "complete": 5,
+            "skip": -3
+          }
+        },
+        {
+          "id": "7",
+          "description": "Spend time with family",
+          "points": {
+            "complete": 4,
+            "skip": -2
+          }
+        }
+      ]
+    }
+  }
+}
