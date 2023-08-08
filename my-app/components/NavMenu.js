@@ -1,5 +1,7 @@
 import React from 'react';
 import { View, TouchableOpacity, Text, StyleSheet } from 'react-native';
+import PropTypes from 'prop-types';
+
 
 const NavMenu = ({ onSelect }) => {
   return (
@@ -15,6 +17,10 @@ const NavMenu = ({ onSelect }) => {
       </TouchableOpacity>
     </View>
   );
+};
+
+NavMenu.propTypes = {
+  onSelect: PropTypes.func.isRequired,
 };
 
 const styles = StyleSheet.create({

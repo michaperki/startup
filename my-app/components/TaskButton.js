@@ -2,6 +2,7 @@
 import React, { useCallback } from "react";
 import AwesomeButton from "react-native-really-awesome-button";
 import { Button, Text, View } from "react-native";
+import PropTypes from "prop-types";
 
 const TaskButton = ({ task, onComplete, onSkip }) => {
   const handleComplete = useCallback(() => {
@@ -26,6 +27,15 @@ const TaskButton = ({ task, onComplete, onSkip }) => {
       {/* Skip button */}
     </View>
   );
+};
+
+TaskButton.propTypes = {
+  task: PropTypes.shape({
+    id: PropTypes.string.isRequired,
+    description: PropTypes.string.isRequired,
+  }).isRequired,
+  onComplete: PropTypes.func.isRequired,
+  onSkip: PropTypes.func.isRequired,
 };
 
 export default TaskButton;

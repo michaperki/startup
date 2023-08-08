@@ -1,27 +1,29 @@
-import React, { Component } from "react";
+import React from "react";
 import { Text, View, Button } from "react-native";
+import PropTypes from 'prop-types';
 
-class RoutineSelector extends Component {
-  render() {
-    const { taskLists, onSelect } = this.props;
-
-    if (!taskLists) {
-      return <Text>Loading...</Text>;
-    }
-
-    const routineNames = Object.keys(taskLists);
-    return (
-      <View>
-        {routineNames.map((name) => (
-          <Button
-            key={name}
-            title={`Start ${name}`}
-            onPress={() => onSelect(name)}
-          />
-        ))}
-      </View>
-    );
+const RoutineSelector = ({ taskLists, onSelect }) => {
+  if (!taskLists) {
+    return <Text>Loading...</Text>;
   }
-}
+
+  const routineNames = Object.keys(taskLists);
+  return (
+    <View>
+      {routineNames.map((name) => (
+        <Button
+          key={name}
+          title={`Start ${name}`}
+          onPress={() => onSelect(name)}
+        />
+      ))}
+    </View>
+  );
+};
+
+RoutineSelector.propTypes = {
+  taskLists: PropTypes.object.isRequired,
+  onSelect: PropTypes.func.isRequired,
+};
 
 export default RoutineSelector;

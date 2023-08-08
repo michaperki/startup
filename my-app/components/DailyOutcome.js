@@ -1,6 +1,7 @@
 // DailyOutcome.js
 import React from "react";
 import { StyleSheet, Text, View } from "react-native";
+import PropTypes from 'prop-types';
 
 const DailyOutcome = ({ score, caption, backgroundColor }) => (
   <View style={[styles.container, { backgroundColor }]}>
@@ -8,6 +9,12 @@ const DailyOutcome = ({ score, caption, backgroundColor }) => (
     <Text style={styles.caption}>{caption}</Text>
   </View>
 );
+
+DailyOutcome.propTypes = {
+  score: PropTypes.number.isRequired,
+  caption: PropTypes.string.isRequired,
+  backgroundColor: PropTypes.string,
+};
 
 const styles = StyleSheet.create({
   container: {

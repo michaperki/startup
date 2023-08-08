@@ -1,39 +1,41 @@
-// components/Home.js
-
-import React, { Component } from "react";
+import React from "react";
 import { StyleSheet, Text, View, Button, Image } from "react-native";
+import PropTypes from 'prop-types';
 
-class Home extends Component {
-  render() {
-    return (
-      <View style={styles.container}>
-        <View style={styles.headerContainer}>
-          <View style={styles.logoContainer}>
-            <Text style={styles.title}>Lifelo</Text>
-            <View style={styles.imageContainer}>
-              <Image
-                source={require("../assets/logo.png")}
-                style={styles.image}
-              />
-            </View>
+
+const Home = ({ navigation }) => {
+  return (
+    <View style={styles.container}>
+      <View style={styles.headerContainer}>
+        <View style={styles.logoContainer}>
+          <Text style={styles.title}>Lifelo</Text>
+          <View style={styles.imageContainer}>
+            <Image
+              source={require("../assets/logo.png")}
+              style={styles.image}
+            />
           </View>
-          <Text style={styles.subtitle}>
-            A place to keep track of your life
-          </Text>
         </View>
-
-        <Button
-          title="Log In"
-          onPress={() => this.props.navigation.navigate("Log In")}
-        />
-        <Button
-          title="Sign Up"
-          onPress={() => this.props.navigation.navigate("Sign Up")}
-        />
+        <Text style={styles.subtitle}>
+          A place to keep track of your life
+        </Text>
       </View>
-    );
-  }
-}
+
+      <Button
+        title="Log In"
+        onPress={() => navigation.navigate("Log In")}
+      />
+      <Button
+        title="Sign Up"
+        onPress={() => navigation.navigate("Sign Up")}
+      />
+    </View>
+  );
+};
+
+Home.propTypes = {
+  navigation: PropTypes.object.isRequired,
+};
 
 // styles
 const styles = StyleSheet.create({

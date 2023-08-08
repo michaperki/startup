@@ -3,6 +3,7 @@ import { StyleSheet, Text, View } from "react-native";
 import Score from "../components/Score";
 import DailyOutcome from "../components/DailyOutcome";
 import RoutineSelector from "../components/RoutineSelector";
+import PropTypes from "prop-types";
 
 const computeHighAndLowScore = (tasks, score) => {
   if (!tasks || tasks.length === 0) {
@@ -51,6 +52,22 @@ const Daily = ({ score, tasks, taskLists, onSelect, routine }) => {
       </View>
     </View>
   );
+};
+
+Daily.propTypes = {
+  score: PropTypes.number.isRequired,
+  tasks: PropTypes.arrayOf(
+    PropTypes.shape({
+      description: PropTypes.string.isRequired,
+      points: PropTypes.shape({
+        complete: PropTypes.number.isRequired,
+        skip: PropTypes.number.isRequired,
+      }).isRequired,
+    })
+  ).isRequired,
+  taskLists: PropTypes.array.isRequired, // Assuming this is an array but details about shape are not given
+  onSelect: PropTypes.func.isRequired,
+  routine: PropTypes.any, // Using 'any' here because we don't have details about the shape of routine
 };
 
 const styles = StyleSheet.create({

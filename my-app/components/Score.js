@@ -1,5 +1,10 @@
 import React, { useState, useEffect, useRef } from "react";
 import { StyleSheet, Text, View, Animated } from "react-native";
+import {
+  fadeInOutAnimation,
+  scoreTickAnimation,
+} from "../animations/scoreAnimation";
+import PropTypes from "prop-types";
 
 const Score = ({ score }) => {
   const [displayedScore, setDisplayedScore] = useState(0);
@@ -20,46 +25,9 @@ const Score = ({ score }) => {
     if (difference !== 0) {
       setScoreDifference(difference);
 
-      // Fade-In
-      fadeAnim.setValue(0);
-      Animated.timing(fadeAnim, {
-        toValue: 1,
-        duration: 500,
-        useNativeDriver: true,
-      }).start(() => {
-        // Wait for a bit, then start the fade-out
-        setTimeout(() => {
-          Animated.timing(fadeAnim, {
-            toValue: 0,
-            duration: 500,
-            useNativeDriver: true,
-          }).start(() => setScoreDifference(null));
-        }, 1000);
+      scoreTickAnimation(difference, setDisplayedScore, () => {
+        fadeInOutAnimation(fadeAnim, () => setScoreDifference(null));
       });
-
-      const stepsRequired = Math.abs(difference);
-      const step = Math.sign(difference);
-      const intervalDuration = animationDuration / stepsRequired;
-      let stepsTaken = 0;
-
-      const interval = setInterval(() => {
-        stepsTaken++;
-        setDisplayedScore((prev) => prev + step);
-
-        if (stepsTaken === stepsRequired) {
-          clearInterval(interval);
-
-          // Start fading out the difference once the score finishes ticking
-          Animated.timing(fadeAnim, {
-            toValue: 0,
-            duration: 1000,
-            useNativeDriver: true,
-          }).start(() => {
-            // Reset scoreDifference once the fade out is complete
-            setScoreDifference(null);
-          });
-        }
-      }, intervalDuration);
     }
   }, [score]);
 
@@ -80,6 +48,10 @@ const Score = ({ score }) => {
       )}
     </View>
   );
+};
+
+Score.propTypes = {
+  score: PropTypes.number.isRequired,
 };
 
 const styles = StyleSheet.create({
