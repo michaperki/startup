@@ -41,29 +41,48 @@ const Lifelo = () => {
 
   const handlePerformanceUpdate = useCallback(
     async (pointsUpdateKey) => {
-      const task = tasks[taskIndex];
+      console.log(
+        "[Lifelo] Handling performance update. Action:",
+        pointsUpdateKey
+      );
 
+      const task = tasks[taskIndex];
       validateUpdate(task, pointsUpdateKey);
 
       const { id, points } = task;
 
       try {
-        const currentPerformance = await getUpdatedPerformance(id);
-        const updatedPoints = currentPerformance[pointsUpdateKey] + 1;
-
-        await savePerformance(id, pointsUpdateKey, updatedPoints);
-
-        const updatedScore = calculateScore(
-          currentPerformance.completed,
-          currentPerformance.skipped
+        const currentPerformance = await fetchPerformance(id);
+        console.log(
+          "[Lifelo] Current performance data:",
+          JSON.stringify(currentPerformance)
         );
 
+        const updatedPoints = currentPerformance[pointsUpdateKey] + 1;
+        await savePerformance(id, pointsUpdateKey, updatedPoints);
+
+        // Use the locally computed updatedPoints for score calculation
+        const updatedPerformance = {
+          ...currentPerformance,
+          [pointsUpdateKey]: updatedPoints,
+        };
+
+        const updatedScore = calculateScore(
+          updatedPerformance.completed,
+          updatedPerformance.skipped
+        );
+
+        console.log("[Lifelo] Updated score:", updatedScore);
         updateScore(updatedScore);
+
         setTaskIndex((prevIndex) =>
           prevIndex < tasks.length - 1 ? prevIndex + 1 : 0
         );
       } catch (err) {
-        console.error("Error updating the task performance:", err);
+        console.error(
+          "[Lifelo] Error updating the task performance:",
+          err.message
+        );
       }
     },
     [tasks, taskIndex, fetchPerformance, user.uid]

@@ -1,4 +1,12 @@
-import { getDatabase, ref, onValue, set, get, update } from "firebase/database";
+import {
+  getDatabase,
+  ref,
+  onValue,
+  set,
+  get,
+  update,
+  push,
+} from "firebase/database";
 import app from "../firebase";
 import {
   getAuth,
@@ -134,33 +142,46 @@ export function updateTaskPerformance(uid, taskId, taskData) {
   return updateValueAtRef(getTaskPerformanceRef(uid, taskId), taskData);
 }
 
-export function updateSpecificTaskPerformance(uid, taskId, taskData) {
-  console.log("Updating task performance:", taskData);
-  console.log("Task ID:", taskId);
-  console.log("UID:", uid);
+export function getUserTaskPerformanceRef(uid, taskId) {
+  return ref(
+    db,
+    `${USERS_PATH}/${uid}/${TASK_PERFORMANCE_PATH}/${TASK_PATH + taskId}`
+  );
+}
 
-  const taskRef = getTaskPerformanceRef(uid, taskId);
-  console.log("Task ref:", taskRef);
-  return fetchValueFromRefOnce(taskRef)
-    .then((existingData) => {
-      console.log("Existing data:", existingData);
-      existingData = existingData || { completed: 0, skipped: 0 };
-      console.log("Existing data (2):", existingData);
-      taskData = {
-        completed: isNaN(taskData.completed) ? 0 : taskData.completed,
-        skipped: isNaN(taskData.skipped) ? 0 : taskData.skipped,
-      };
-      const mergedData = { ...existingData, ...taskData };
-      console.log("Merged data:", mergedData);
-      if (isNaN(mergedData.completed) || isNaN(mergedData.skipped)) {
-        throw new Error("Computed data contains NaN values");
-      }
-      return update(taskRef, mergedData);
-    })
-    .catch((error) => {
-      console.error("Error fetching or updating data:", error);
-      return set(taskRef, taskData);
-    });
+export function updateSpecificTaskPerformance(uid, taskId, taskData) {
+  const taskRef = getUserTaskPerformanceRef(uid, taskId);
+  
+  return get(taskRef)
+      .then(snapshot => {
+          let existingData = snapshot.val();
+
+          if (!existingData) {
+              existingData = {
+                  completed: 0,
+                  skipped: 0,
+                  events: []
+              };
+          }
+
+          const mergedData = {
+              ...existingData,
+              ...taskData
+          };
+          
+          // Check the contents of mergedData to ensure it's correctly formed
+          console.log("[Firebase Service] mergedData:", JSON.stringify(mergedData));
+
+          return set(taskRef, mergedData);
+      })
+      .catch((error) => {
+          console.error("[Firebase Service] Error during updateSpecificTaskPerformance:", error.message);
+          console.error("[Firebase Service] Existing data:", JSON.stringify(existingData));
+          console.error("[Firebase Service] Received task data:", JSON.stringify(taskData));
+          
+          // Fallback action in case of an error
+          return set(taskRef, taskData);
+      });
 }
 
 export function getSpecificTaskPerformance(uid, taskId) {
@@ -175,4 +196,30 @@ export function getProvisional(uid) {
 
 export function updateProvisional(uid, provisional) {
   return updateValueAtRef(getUserRef(uid), { provisional });
+}
+
+function getTaskPerformanceEventsRef(uid, taskId) {
+  return ref(
+    db,
+    `${USERS_PATH}/${uid}/${TASK_PERFORMANCE_PATH}/${TASK_PATH + taskId}/events`
+  );
+}
+
+// Function to record a task event (either 'completed' or 'skipped')
+export function recordTaskEvent(uid, taskId, action) {
+  if (!["completed", "skipped"].includes(action)) {
+    throw new Error("Invalid action. Must be 'completed' or 'skipped'.");
+  }
+
+  const event = {
+    action,
+    timestamp: Date.now(),
+  };
+
+  const eventsRef = getTaskPerformanceEventsRef(uid, taskId);
+  return push(eventsRef, event); // Use push correctly here
+}
+// Function to fetch all task events for a specific task
+export function fetchTaskEvents(uid, taskId) {
+  return fetchValueFromRefOnce(getTaskPerformanceEventsRef(uid, taskId));
 }

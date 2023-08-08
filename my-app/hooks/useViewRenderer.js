@@ -2,10 +2,12 @@ import React from "react";
 import { Text } from "react-native";
 import Overview from "../pages/Overview";
 import Daily from "../pages/Daily";
+import Stats from "../pages/Stats";
 
 export const VIEW_TYPES = {
   OVERVIEW: "overview",
   TODAY: "today",
+  STATS: "stats",
 };
 
 const useViewRenderer = (
@@ -54,6 +56,8 @@ const useViewRenderer = (
 
           />
         );
+      case VIEW_TYPES.STATS:
+        return <Stats />;
       default:
         return null;
     }

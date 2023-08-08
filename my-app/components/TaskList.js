@@ -1,6 +1,8 @@
+// TaskList.js
 import React, { Component } from "react";
-import { View, Text, Button } from "react-native";
+import { View, Text } from "react-native";
 import TaskButton from "./TaskButton";
+
 class TaskList extends Component {
   render() {
     const { tasks, taskIndex, onTaskComplete, onTaskSkip } = this.props;
@@ -13,8 +15,9 @@ class TaskList extends Component {
     return (
       <View>
         <TaskButton
-        task={task}
-        onComplete={onTaskComplete}
+          task={task}
+          onComplete={onTaskComplete}
+          onSkip={onTaskSkip} // Pass down the onSkip prop
         />
       </View>
     );

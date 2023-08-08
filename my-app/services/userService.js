@@ -22,12 +22,12 @@ export const userService = {
     const auth = getAuth();
     return signInWithEmailAndPassword(auth, email, password);
   },
-  
+
   signOut: () => {
     const auth = getAuth();
     return auth.signOut();
   },
-  
+
   signUp: (email, password) => {
     const auth = getAuth();
     return createUserWithEmailAndPassword(auth, email, password);
@@ -39,8 +39,11 @@ export const userService = {
       provisional: true,
       lifelo: 1500,
       taskPerformance: {
-        taskId1: { completed: 3, skipped: 1 },
-        taskId2: { completed: 5, skipped: 0 },
+        taskId1: {
+          completed: 0,
+          skipped: 0,
+          events: [],
+        },
       },
     });
   },

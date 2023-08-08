@@ -1,20 +1,30 @@
+// TaskButton.js
 import React, { useCallback } from "react";
 import AwesomeButton from "react-native-really-awesome-button";
+import { Button, Text, View } from "react-native";
 
-const TaskButton = ({ task, onComplete }) => {
+const TaskButton = ({ task, onComplete, onSkip }) => {
   const handleComplete = useCallback(() => {
     onComplete(task.id);
   }, [task, onComplete]);
 
+  const handleSkip = useCallback(() => {
+    onSkip(task.id);
+  }, [task, onSkip]);
+
   return (
-    <AwesomeButton
-      backgroundColor="#FFD700"
-      textColor="#000000"
-      width={200}
-      onPress={handleComplete}
-    >
-      {task.description}
-    </AwesomeButton>
+    <View>
+      <AwesomeButton
+        backgroundColor="#FFD700"
+        textColor="#000000"
+        width={200}
+        onPress={handleComplete}
+      >
+        <Text>{task.description}</Text>
+      </AwesomeButton>
+      <Button title="Skip" onPress={handleSkip} color="#888" />
+      {/* Skip button */}
+    </View>
   );
 };
 

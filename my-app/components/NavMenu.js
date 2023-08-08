@@ -10,8 +10,8 @@ const NavMenu = ({ onSelect }) => {
       <TouchableOpacity onPress={() => onSelect('today')}>
         <Text style={styles.navItem}>today</Text>
       </TouchableOpacity>
-      <TouchableOpacity onPress={() => onSelect('option3')}>
-        <Text style={styles.navItem}>Option 3</Text>
+      <TouchableOpacity onPress={() => onSelect('stats')}>
+        <Text style={styles.navItem}>stats</Text>
       </TouchableOpacity>
     </View>
   );

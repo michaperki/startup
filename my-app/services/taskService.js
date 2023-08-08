@@ -1,7 +1,6 @@
-// services/taskService.js
-
-import { ref, onValue, set, get, update, getDatabase } from "firebase/database";
 import app from "../firebase";
+import { recordTaskEvent, fetchTaskEvents } from "./firebaseService"; // Assuming the functions are in this file
+import { getDatabase, ref, get, onValue, update } from "firebase/database";
 
 const db = getDatabase(app);
 
@@ -17,7 +16,6 @@ function getUserRef(uid) {
 function getTaskListsRef() {
   return ref(db, TASK_LISTS_PATH);
 }
-
 
 export function fetchValueFromRefOnce(userRef) {
   return get(userRef).then((snapshot) => {
@@ -48,29 +46,10 @@ export function fetchValueFromRef(userRef, callback) {
   });
 }
 
-export function updateValueAtRef(ref, value) {
-  if (typeof value === "object") {
-    return update(ref, value).catch((error) => {
-      console.error("Error updating value:", error);
-      throw error;
-    });
-  } else {
-    return set(ref, value).catch((error) => {
-      console.error("Error setting value:", error);
-      throw error;
-    });
-  }
-}
+// Removed the updateValueAtRef function as it's not compatible with the new schema
 
 export function getScoreRef(uid) {
   return ref(db, `${USERS_PATH}/${uid}/${SCORE_PATH}`);
-}
-
-export function getTaskPerformanceRef(uid, taskId) {
-  return ref(
-    db,
-    `${USERS_PATH}/${uid}/${TASK_PERFORMANCE_PATH}/${TASK_PATH + taskId}`
-  );
 }
 
 export const taskService = {
@@ -79,8 +58,9 @@ export const taskService = {
     return fetchValueFromRefOnce(ref);
   },
 
-  updateTaskPerformance: (uid, taskId, taskData) => {
-    return updateValueAtRef(getTaskPerformanceRef(uid, taskId), taskData);
+  // Replaced with a more meaningful function name and implementation
+  recordUserTaskAction: (uid, taskId, action) => {
+    return recordTaskEvent(uid, taskId, action);
   },
 
   getTaskPerformance: (uid) => {
@@ -89,27 +69,12 @@ export const taskService = {
     });
   },
 
-  updateSpecificTaskPerformance: (uid, taskId, taskData) => {
-    const taskRef = getTaskPerformanceRef(uid, taskId);
-    return fetchValueFromRefOnce(taskRef)
-      .then((existingData) => {
-        existingData = existingData || { completed: 0, skipped: 0 };
-        taskData = {
-          completed: isNaN(taskData.completed) ? 0 : taskData.completed,
-          skipped: isNaN(taskData.skipped) ? 0 : taskData.skipped,
-        };
-        const mergedData = { ...existingData, ...taskData };
-        if (isNaN(mergedData.completed) || isNaN(mergedData.skipped)) {
-          throw new Error("Computed data contains NaN values");
-        }
-        return update(taskRef, mergedData);
-      })
-      .catch((error) => {
-        return set(taskRef, taskData);
-      });
+  // Fetches all events for a specific task
+  fetchTaskEventsForUser: (uid, taskId) => {
+    return fetchTaskEvents(uid, taskId);
   },
 
-  getSpecificTaskPerformance: (uid, taskId) => {
-    return fetchValueFromRefOnce(getTaskPerformanceRef(uid, taskId));
-  },
+  // Removed updateSpecificTaskPerformance and getSpecificTaskPerformance 
+  // since they don't fit with the new schema and are replaced by the new methods.
 };
+

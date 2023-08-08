@@ -3,9 +3,9 @@ import { StyleSheet, Text, View, Animated } from "react-native";
 
 const Score = ({ score }) => {
   const [displayedScore, setDisplayedScore] = useState(0);
-  const [scoreDifference, setScoreDifference] = useState(0);
+  const [scoreDifference, setScoreDifference] = useState(null);
   const fadeAnim = new Animated.Value(1);
-  const animationDuration = 2000; // 2 seconds
+  const animationDuration = 2000;
   const isFirstRender = useRef(true);
 
   useEffect(() => {
@@ -14,22 +14,27 @@ const Score = ({ score }) => {
       isFirstRender.current = false;
       return;
     }
+
     const difference = score - displayedScore;
 
     if (difference !== 0) {
       setScoreDifference(difference);
 
+      // Fade-In
       fadeAnim.setValue(0);
       Animated.timing(fadeAnim, {
         toValue: 1,
-        duration: 1000,
+        duration: 500,
         useNativeDriver: true,
       }).start(() => {
-        Animated.timing(fadeAnim, {
-          toValue: 0,
-          duration: 1000,
-          useNativeDriver: true,
-        }).start();
+        // Wait for a bit, then start the fade-out
+        setTimeout(() => {
+          Animated.timing(fadeAnim, {
+            toValue: 0,
+            duration: 500,
+            useNativeDriver: true,
+          }).start(() => setScoreDifference(null));
+        }, 1000);
       });
 
       const stepsRequired = Math.abs(difference);
@@ -43,10 +48,18 @@ const Score = ({ score }) => {
 
         if (stepsTaken === stepsRequired) {
           clearInterval(interval);
+
+          // Start fading out the difference once the score finishes ticking
+          Animated.timing(fadeAnim, {
+            toValue: 0,
+            duration: 1000,
+            useNativeDriver: true,
+          }).start(() => {
+            // Reset scoreDifference once the fade out is complete
+            setScoreDifference(null);
+          });
         }
       }, intervalDuration);
-
-      return () => clearInterval(interval); // Cleanup on component unmount or prop change
     }
   }, [score]);
 
@@ -54,34 +67,39 @@ const Score = ({ score }) => {
     <View style={styles.container}>
       <Text style={styles.title}>Score</Text>
       <Text style={styles.score}>{displayedScore}</Text>
-      <Animated.Text style={[styles.difference, { opacity: fadeAnim }]}>
-        {scoreDifference > 0 ? `+${scoreDifference}` : scoreDifference}
-      </Animated.Text>
+
+      {scoreDifference !== null && (
+        <Animated.Text
+          style={[
+            styles.difference,
+            { opacity: fadeAnim, position: "absolute", top: 50 },
+          ]}
+        >
+          {scoreDifference > 0 ? `+${scoreDifference}` : scoreDifference}
+        </Animated.Text>
+      )}
     </View>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: "#fff",
-    padding: 10,
-    justifyContent: "center",
     alignItems: "center",
+    marginBottom: 20,
   },
   title: {
-    fontSize: 30,
-    textAlign: "center",
+    fontSize: 24,
+    fontWeight: "bold",
   },
   score: {
-    fontSize: 38,
+    fontSize: 48,
     fontWeight: "bold",
-    textAlign: "center",
-    marginBottom: 5,
   },
   difference: {
     fontSize: 18,
     fontWeight: "bold",
     color: "green",
+    backgroundColor: "white",
   },
 });
 
